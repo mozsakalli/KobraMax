@@ -87,4 +87,4 @@ project/*.bin
 # Source insight project files
 /SI/*
 *.si4project/
-
+node_modules

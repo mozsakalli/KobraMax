@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "jimp": "^0.22.10",
+    "puppeteer": "^21.1.1"
+  }
+}

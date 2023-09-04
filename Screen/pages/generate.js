@@ -1,32 +1,22 @@
 const puppeteer = require('puppeteer');
+const jimp = require('jimp');
 
 (async () => {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  // Navigate the page to a URL
-  await page.goto('https://developer.chrome.com/');
-
+  var pages = [121,145];
   // Set screen size
-  await page.setViewport({width: 1080, height: 1024});
+  await page.setViewport({width: 272, height: 480});
 
-  // Type into search box
-  await page.type('.search-box__input', 'automate beyond recorder');
-
-  // Wait and click on first result
-  const searchResultSelector = '.search-box__link';
-  await page.waitForSelector(searchResultSelector);
-  await page.click(searchResultSelector);
-
-  // Locate the full title with a unique string
-  const textSelector = await page.waitForSelector(
-    'text/Customize and automate'
-  );
-  const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-  // Print the full title
-  console.log('The title of this blog post is "%s".', fullTitle);
-
+  for(var i=0; i<pages.length; i++) {
+    await page.goto('http://localhost:8000/'+pages[i]+'.html');
+    var path = './generated/'+pages[i];
+    await page.screenshot({ path: path+'.png' });
+    var img = await jimp.read(path+'.png');
+    await img.write(path+'.bmp');
+  }
+  await page.waitForTimeout(1000);
   await browser.close();
 })();
