@@ -43,8 +43,6 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../feature/powerloss.h"
 
-bool mo_FilamentChanging = false;
-
 namespace Anycubic {
 
   const char MESSAGE_charu[]={0xB4,0xE6,0xB4,0xA2,0xBF,0xA8,0xD2,0xD1,0xB2,0xE5,0xC8,0xEB,0x00};
@@ -2749,9 +2747,7 @@ namespace Anycubic {
 
             void DgusTFT::page25_handle(void)   // lack filament
             {
-							 char str_buf[20];
                static millis_t flash_time = 0;
-							 static int filament_action = 0;
                 switch (key_value)
                 {
                   case 0:
@@ -2763,7 +2759,6 @@ namespace Anycubic {
                     SERIAL_ECHOLNPAIR("printer_state: ", printer_state);
                     SERIAL_ECHOLNPAIR("pause_state: ", pause_state);
 #endif
-										mo_FilamentChanging = false;
                     if(AC_printer_printing == printer_state) {
                       ChangePageOfTFT(PAGE_STATUS2);  // show pause
                     } else if(AC_printer_paused == printer_state) {
@@ -2772,46 +2767,9 @@ namespace Anycubic {
                     }
                   }
                   break;
-									//m-version
-									case 2:  //unload
-									{
-										if(filament_action == 0) 
-											injectCommands_P(AC_cmnd_manual_unload_filament_first_in);
-										filament_action = 1;
-									}
-									break;
-
-									case 3:  //load
-									{
-										filament_action = 2;
-									}
-									break;
-
-									case 4:  //stop
-									{
-										filament_action = 0;
-									}
-									break;
-						
                 }
                 if(millis() < (flash_time +1000) )return;
                 flash_time=millis();
-								
-								sprintf(str_buf,"%u/%u",(uint16_t)getActualTemp_celsius(E0), (uint16_t)getTargetTemp_celsius(E0));
-								SendTxtToTFT(str_buf, TXT_FILAMENT_TEMP);
-
-								if(isPrintingPaused()) {
-
-									if(filament_action == 2) {
-										if(canMove(E0) && !commandsInQueue()) {
-											injectCommands_P(AC_cmnd_manual_load_filament);
-										}
-									} else if(filament_action == 1) {
-										if(canMove(E0) && !commandsInQueue()) {
-											injectCommands_P(AC_cmnd_manual_unload_filament);
-										}
-									}
-								}								
             }
 
             void DgusTFT::page26_handle(void)
